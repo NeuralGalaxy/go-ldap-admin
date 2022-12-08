@@ -2,6 +2,7 @@ package logic
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/eryajf/go-ldap-admin/config"
 	"github.com/eryajf/go-ldap-admin/model"
@@ -119,7 +120,10 @@ func CommonAddUser(user *model.User, groups []*model.Group) error {
 	// 再将用户添加到ldap
 	err = ildap.User.Add(user)
 	if err != nil {
-		return tools.NewLdapError(fmt.Errorf("AddUser向LDAP创建用户失败：" + err.Error()))
+		// TODO: 沟通行政添加邮箱为空的人的邮箱.
+		common.Log.Info(fmt.Sprintf("AddUser向LDAP创建用户(%s)失败："+err.Error(), user.Username))
+		err = nil
+		// return tools.NewLdapError(fmt.Errorf("AddUser向LDAP创建用户失败：" + err.Error())
 	}
 
 	// 处理用户归属的组
@@ -258,7 +262,9 @@ func BuildUserData(flag string, remoteData map[string]interface{}) (*model.User,
 	for system, remote := range fieldRelation {
 		switch system {
 		case "username":
-			u.SetUserName(gjson.Get(string(output), remote).String())
+			// WARN: 因为username组成的DN不合法, 这里使用邮箱名称, 替换username; 字段对应关系username->mail
+			u.SetUserName(GetUserNameFromMailAddress(gjson.Get(string(output), remote).String()))
+			// u.SetUserName(gjson.Get(string(output), remote).String())
 		case "nickname":
 			u.SetNickName(gjson.Get(string(output), remote).String())
 		case "givenName":
@@ -283,7 +289,24 @@ func BuildUserData(flag string, remoteData map[string]interface{}) (*model.User,
 			u.SetSourceUnionId(fmt.Sprintf("%s_%s", flag, gjson.Get(string(output), remote).String()))
 		}
 	}
+	if len(u.Username) == 0 {
+		u.SetUserName(strings.Replace(u.Mobile, "+86", "", 1))
+	}
 	return u, nil
+}
+
+// 从邮箱地址中获取用户名
+func GetUserNameFromMailAddress(address string) string {
+	var userName string
+	addresses := strings.Split(strings.TrimSpace(address), "@")
+	if len(addresses) == 1 {
+		return userName
+	}
+	userName = addresses[0]
+	if len(userName) == 0 {
+		return userName
+	}
+	return userName
 }
 
 // ConvertDeptData 将部门信息转成本地结构体

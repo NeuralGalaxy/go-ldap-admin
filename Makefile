@@ -14,3 +14,17 @@ build-linux-arm:
 
 lint:
 	env GOGC=25 golangci-lint run --fix -j 8 -v ./...
+
+ng-image:
+	@$(ng-image)
+
+cri=cri-2bp27pwaqbe7w5t2
+domain=ngiq-registry.cn-hangzhou.cr.aliyuncs.com
+ns=public
+
+define ng-image
+	docker build . --tag ${domain}/${ns}/go-ldap-admin-server:$(shell git rev-parse --short HEAD) --tag ${domain}/${ns}/go-ldap-admin-server:latest
+	aliyun cr GetAuthorizationToken --InstanceId ${cri} --force --version 2018-12-01 | jq -r .AuthorizationToken | docker login --username=cr_temp_user --password-stdin ${domain}
+	docker push ${domain}/${ns}/go-ldap-admin-server:$(shell git rev-parse --short HEAD)
+	docker push ${domain}/${ns}/go-ldap-admin-server:latest
+endef
