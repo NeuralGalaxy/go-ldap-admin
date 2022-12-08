@@ -139,7 +139,12 @@ func (d FeiShuLogic) AddUsers(user *model.User) error {
 	user.Roles = roles
 	user.Creator = "system"
 	user.Source = config.Conf.FeiShu.Flag
-	user.Password = config.Conf.Ldap.UserInitPassword
+	// NG: 使用随机密码
+	if config.Conf.Ldap.UserInitPassword == "" {
+		user.Password = tools.GenRandPasswd()
+	} else {
+		user.Password = config.Conf.Ldap.UserInitPassword
+	}
 	user.UserDN = fmt.Sprintf("uid=%s,%s", user.Username, config.Conf.Ldap.UserDN)
 
 	// 根据 user_dn 查询用户,不存在则创建

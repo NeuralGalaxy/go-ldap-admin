@@ -120,7 +120,7 @@ func CommonAddUser(user *model.User, groups []*model.Group) error {
 	// 再将用户添加到ldap
 	err = ildap.User.Add(user)
 	if err != nil {
-		// TODO: 沟通行政添加邮箱为空的人的邮箱.
+		// NG: 沟通行政添加邮箱为空的人的邮箱.
 		common.Log.Info(fmt.Sprintf("AddUser向LDAP创建用户(%s)失败："+err.Error(), user.Username))
 		err = nil
 		// return tools.NewLdapError(fmt.Errorf("AddUser向LDAP创建用户失败：" + err.Error())
@@ -274,7 +274,8 @@ func BuildUserData(flag string, remoteData map[string]interface{}) (*model.User,
 		case "jobNumber":
 			u.SetJobNumber(gjson.Get(string(output), remote).String())
 		case "mobile":
-			u.SetMobile(gjson.Get(string(output), remote).String())
+			// NG: 删除国家前缀, 因为UI上更新时有前缀报错
+			u.SetMobile(strings.Replace(gjson.Get(string(output), remote).String(), "+86", "", 1))
 		case "avatar":
 			u.SetAvatar(gjson.Get(string(output), remote).String())
 		case "postalAddress":
@@ -289,13 +290,14 @@ func BuildUserData(flag string, remoteData map[string]interface{}) (*model.User,
 			u.SetSourceUnionId(fmt.Sprintf("%s_%s", flag, gjson.Get(string(output), remote).String()))
 		}
 	}
+	// NG: 用户名是空值, 使用手机号码
 	if len(u.Username) == 0 {
 		u.SetUserName(strings.Replace(u.Mobile, "+86", "", 1))
 	}
 	return u, nil
 }
 
-// 从邮箱地址中获取用户名
+// NG: 从邮箱地址中获取用户名
 func GetUserNameFromMailAddress(address string) string {
 	var userName string
 	addresses := strings.Split(strings.TrimSpace(address), "@")
