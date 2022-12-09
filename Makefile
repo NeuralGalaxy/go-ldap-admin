@@ -33,6 +33,7 @@ define ng-image
 endef
 
 define ng-debug
+	docker build . --tag localhost/go-ldap-admin-server:latest
 	cd ./docs/docker-compose/ && docker-compose up -d && docker-compose stop go-ldap-admin-server && docker-compose rm go-ldap-admin-server -f && docker-compose up -d go-ldap-admin-server
 	docker image prune -f
 	docker logs -f go-ldap-admin-server
