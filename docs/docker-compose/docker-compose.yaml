@@ -6,7 +6,7 @@ networks:
 
 services:
   mysql:
-    image: docker.mirrors.sjtug.sjtu.edu.cn/mysql/mysql-server:5.7
+    image: mysql:5.7
     container_name: go-ldap-admin-mysql # 指定容器名称，如果不设置此参数，则由系统自动生成
     hostname: go-ldap-admin-mysql
     restart: always # 设置容器自启模式
@@ -18,11 +18,8 @@ services:
       MYSQL_ROOT_HOST: "%"
       MYSQL_DATABASE: go_ldap_admin
     volumes:
-      # 数据挂载目录自行修改哦！
-      - /etc/localtime:/etc/localtime:ro # 设置容器时区与宿主机保持一致
-      - ./data/mysql:/var/lib/mysql/data # 映射数据库保存目录到宿主机，防止数据丢失
       - ./config/my.cnf:/etc/mysql/my.cnf # 映射数据库配置文件
-    command: --default-authentication-plugin=mysql_native_password #解决外部无法访问
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci #解决外部无法访问
     networks:
       - go-ldap-admin
 
@@ -33,8 +30,8 @@ services:
     restart: always
     environment:
       TZ: Asia/Shanghai
-      LDAP_ORGANISATION: "eryajf.net"
-      LDAP_DOMAIN: "eryajf.net"
+      LDAP_ORGANISATION: "ng.com"
+      LDAP_DOMAIN: "ng.com"
       LDAP_ADMIN_PASSWORD: "123456"
     command: [ '--copy-service' ]
     volumes:
@@ -67,7 +64,7 @@ services:
       - go-ldap-admin
 
   go-ldap-admin-server:
-    image: docker.mirrors.sjtug.sjtu.edu.cn/eryajf/go-ldap-admin-server
+    image: localhost/go-ldap-admin-server
     container_name: go-ldap-admin-server
     hostname: go-ldap-admin-server
     restart: always
@@ -76,8 +73,8 @@ services:
       WAIT_HOSTS: mysql:3306, openldap:389
     ports:
       - 8888:8888
-    # volumes:  # 可按需打开此配置，将配置文件挂载到本地 可在服务运行之后，执行 docker cp go-ldap-admin-server:/app/config.yml ./config 然后再取消该行注释
-    #   - ./config/config.yml:/app/config.yml
+    volumes:  # 可按需打开此配置，将配置文件挂载到本地 可在服务运行之后，执行 docker cp go-ldap-admin-server:/app/config.yml ./config 然后再取消改行注释
+      - ./config/config.yml:/app/config.yml
     depends_on:
       - mysql
       - openldap

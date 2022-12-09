@@ -9,6 +9,7 @@ import (
 	"github.com/eryajf/go-ldap-admin/public/tools"
 
 	"github.com/thoas/go-funk"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -760,6 +761,29 @@ func InitData() {
 		err := DB.Create(&newGroups).Error
 		if err != nil {
 			Log.Errorf("写入分组数据失败：%v", err)
+		}
+	}
+
+	// 7. 写入字段映射
+	fieldRelations := []model.FieldRelation{
+		{
+			Model:      gorm.Model{ID: 1},
+			Flag:       "feishu_user",
+			Attributes: datatypes.JSON(`{"mail": "email", "avatar": "avatar", "mobile": "mobile", "remark": "name", "nickname": "name", "position": "job_title", "username": "email", "givenName": "nickname", "groupName": "department_id", "jobNumber": "employee_no", "introduction": "en_name", "sourceDeptId": "open_department_id", "sourceUserId": "user_id", "postalAddress": "city", "sourceUnionId": "union_id", "sourceDeptParentId": "open_department_id"}`),
+		},
+		{
+			Model:      gorm.Model{ID: 2},
+			Flag:       "feishu_group",
+			Attributes: datatypes.JSON(`{"remark": "department_id", "groupName": "name", "sourceDeptId": "open_department_id", "sourceDeptParentId": "parent_department_id"}`),
+		},
+	}
+	for _, fieldRelation := range fieldRelations {
+		err := DB.First(&fieldRelation, fieldRelation.ID).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err := DB.Create(&fieldRelation).Error
+			if err != nil {
+				Log.Errorf("写入字段映射数据失败：%v", err)
+			}
 		}
 	}
 }

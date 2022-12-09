@@ -17,7 +17,7 @@ import (
 type FeiShuLogic struct {
 }
 
-//通过飞书获取部门信息
+// 通过飞书获取部门信息
 func (d *FeiShuLogic) SyncFeiShuDepts(c *gin.Context, req interface{}) (data interface{}, rspError interface{}) {
 	// 1.获取所有部门
 	deptSource, err := feishu.GetAllDepts()
@@ -80,7 +80,7 @@ func (d FeiShuLogic) AddDepts(group *model.Group) error {
 	return nil
 }
 
-//根据现有数据库同步到的部门信息，开启用户同步
+// 根据现有数据库同步到的部门信息，开启用户同步
 func (d FeiShuLogic) SyncFeiShuUsers(c *gin.Context, req interface{}) (data interface{}, rspError interface{}) {
 	// 1.获取飞书用户列表
 	staffSource, err := feishu.GetAllUsers()
@@ -139,7 +139,12 @@ func (d FeiShuLogic) AddUsers(user *model.User) error {
 	user.Roles = roles
 	user.Creator = "system"
 	user.Source = config.Conf.FeiShu.Flag
-	user.Password = config.Conf.Ldap.UserInitPassword
+	// NG: 使用随机密码
+	if config.Conf.Ldap.UserInitPassword == "" {
+		user.Password = tools.GenRandPasswd()
+	} else {
+		user.Password = config.Conf.Ldap.UserInitPassword
+	}
 	user.UserDN = fmt.Sprintf("uid=%s,%s", user.Username, config.Conf.Ldap.UserDN)
 
 	// 根据 user_dn 查询用户,不存在则创建

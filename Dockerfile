@@ -1,6 +1,6 @@
 FROM golang:1.17.10 AS builder
 
-# ENV GOPROXY      https://goproxy.io
+ENV GOPROXY      https://goproxy.io
 
 RUN mkdir /app
 ADD . /app/

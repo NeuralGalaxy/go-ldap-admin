@@ -1,6 +1,9 @@
 package tools
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/eryajf/go-ldap-admin/config"
 )
 
@@ -31,4 +34,16 @@ func NewGenPasswd(passwd string) string {
 func NewParPasswd(passwd string) string {
 	pass, _ := RSADecrypt([]byte(passwd), config.Conf.System.RSAPrivateBytes)
 	return string(pass)
+}
+
+// NG: 生成随机密码
+func GenRandPasswd() string {
+	baseStr := "abcdefghijkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ234567890"
+	passLength := 20
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + rand.Int63()))
+	bytes := make([]byte, passLength)
+	for i := 0; i < passLength; i++ {
+		bytes[i] = baseStr[r.Intn(len(baseStr))]
+	}
+	return string(bytes)
 }

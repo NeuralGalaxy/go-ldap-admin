@@ -1,21 +1,21 @@
-dn: ou=people,dc=eryajf,dc=net
+dn: ou=people,dc=ng,dc=com
 ou: people
 description: 用户根目录
 objectClass: organizationalUnit
 
-dn: ou=dingtalkroot,dc=eryajf,dc=net
+dn: ou=dingtalkroot,dc=ng,dc=com
 ou: dingtalkroot
 description: 钉钉根部门
 objectClass: top
 objectClass: organizationalUnit
 
-dn: ou=wecomroot,dc=eryajf,dc=net
+dn: ou=wecomroot,dc=ng,dc=com
 ou: wecomroot
 description: 企业微信根部门
 objectClass: top
 objectClass: organizationalUnit
 
-dn: ou=feishuroot,dc=eryajf,dc=net
+dn: ou=feishuroot,dc=ng,dc=com
 ou: feishu
 description: 飞书根部门
 objectClass: top
