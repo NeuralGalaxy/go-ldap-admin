@@ -39,7 +39,7 @@ func NewParPasswd(passwd string) string {
 // NG: 生成随机密码
 func GenRandPasswd() string {
 	baseStr := "abcdefghijkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ234567890"
-	passLength := 10
+	passLength := 20
 	r := rand.New(rand.NewSource(time.Now().UnixNano() + rand.Int63()))
 	bytes := make([]byte, passLength)
 	for i := 0; i < passLength; i++ {
