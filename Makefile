@@ -16,20 +16,33 @@ lint:
 	env GOGC=25 golangci-lint run --fix -j 8 -v ./...
 
 ng-image:
-	@$(ng-image)
+	@$(ng-aliyun-image)
 
 ng-debug:
 	@$(ng-debug)
 
 
-cri=$(shell aws ecr describe-repositories --repository-names go-ldap-admin-server | jq -r ".repositories[].repositoryUri")
+# for common
 tag=$(shell git rev-parse --short HEAD)
+# for aws
+cri=$(shell aws ecr describe-repositories --repository-names go-ldap-admin-server | jq -r ".repositories[].repositoryUri")
+# for aliyun
+instanceId=$(shell aliyun cr ListInstance | jq -r '.Instances[0].InstanceId')
+domain=ngiq-registry.cn-hangzhou.cr.aliyuncs.com
+ns=public
 
-define ng-image
+define ng-aws-image
 	docker build . --tag ${cri}:${tag} --tag ${cri}:latest
 	aws ecr get-login-password | docker login --username AWS --password-stdin ${cri}
 	docker push ${cri}:${tag}
 	docker push ${cri}:latest
+endef
+
+define ng-aliyun-image
+	docker build . --tag ${domain}/${ns}/go-ldap-admin-server:$(shell git rev-parse --short HEAD) --tag ${domain}/${ns}/go-ldap-admin-server:latest
+	aliyun cr GetAuthorizationToken --InstanceId ${instanceId} --force --version 2018-12-01 | jq -r .AuthorizationToken | docker login --username=cr_temp_user --password-stdin ${domain}
+	docker push ${domain}/${ns}/go-ldap-admin-server:${tag}
+	docker push ${domain}/${ns}/go-ldap-admin-server:latest
 endef
 
 define ng-debug
