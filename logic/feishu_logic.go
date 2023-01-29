@@ -97,7 +97,7 @@ func (d FeiShuLogic) SyncFeiShuUsers(c *gin.Context, req interface{}) (data inte
 		// 入库
 		err = d.AddUsers(staff)
 		if err != nil {
-			return nil, tools.NewOperationError(fmt.Errorf("SyncFeiShuUsers写入用户失败：%s", err.Error()))
+			common.Log.Error(fmt.Errorf("SyncFeiShuUsers写入用户失败：%s", err.Error()))
 		}
 	}
 
