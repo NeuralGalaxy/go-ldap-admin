@@ -103,13 +103,13 @@ func (d FeiShuLogic) SyncFeiShuUsers(c *gin.Context, req interface{}) (data inte
 
 	// 3.获取飞书已离职用户id列表
 	userIds, err := feishu.GetLeaveUserIds()
-	common.Log.Info(fmt.Sprintf("处理离职id列表(%v)：" + userIds))
+	common.Log.Info(fmt.Sprintf("处理离职id列表(%v)：", userIds))
 	if err != nil {
 		return nil, tools.NewOperationError(fmt.Errorf("SyncFeiShuUsers获取飞书离职用户列表失败：%s", err.Error()))
 	}
 	// 4.遍历id，开始处理
 	for _, uid := range userIds {
-		common.Log.Info(fmt.Sprintf("处理离职id(%s)：" + uid))
+		common.Log.Info(fmt.Sprintf("处理离职id(%s)：", uid))
 
 		if isql.User.Exist(tools.H{"source_user_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, uid)}) {
 			user := new(model.User)
