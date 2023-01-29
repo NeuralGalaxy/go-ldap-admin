@@ -40,7 +40,6 @@ endef
 
 define ng-aliyun-image
 	docker build . --tag ${domain}/${ns}/go-ldap-admin-server:$(shell git rev-parse --short HEAD) --tag ${domain}/${ns}/go-ldap-admin-server:latest
-	aliyun cr GetAuthorizationToken --InstanceId ${instanceId} --force --version 2018-12-01 | jq -r .AuthorizationToken | docker login --username=cr_temp_user --password-stdin ${domain}
 	docker push ${domain}/${ns}/go-ldap-admin-server:${tag}
 	docker push ${domain}/${ns}/go-ldap-admin-server:latest
 endef

@@ -7,6 +7,7 @@ import (
 
 	"github.com/chyroc/lark"
 	"github.com/eryajf/go-ldap-admin/config"
+	"github.com/eryajf/go-ldap-admin/public/common"
 	"github.com/eryajf/go-ldap-admin/public/tools"
 )
 
@@ -76,6 +77,7 @@ func GetAllUsers() (ret []map[string]interface{}, err error) {
 				return nil, err
 			}
 			for _, user := range res.Items {
+				common.Log.Info(fmt.Sprintf("原始数据(%v)：", user))
 				ele := make(map[string]interface{})
 				ele["name"] = user.Name
 				ele["custom_name_pinyin"] = tools.ConvertToPinYin(user.Name)
