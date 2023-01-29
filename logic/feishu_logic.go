@@ -85,10 +85,12 @@ func (d FeiShuLogic) AddDepts(group *model.Group) error {
 func (d FeiShuLogic) SyncFeiShuUsers(c *gin.Context, req interface{}) (data interface{}, rspError interface{}) {
 	// 1.获取飞书用户列表
 	staffSource, err := feishu.GetAllUsers()
+	common.Log.Info(fmt.Sprintf("获取的原时数据(%v)：", staffSource))
 	if err != nil {
 		return nil, tools.NewOperationError(fmt.Errorf("获取飞书用户列表失败：%s", err.Error()))
 	}
 	staffs, err := ConvertUserData(config.Conf.FeiShu.Flag, staffSource)
+	common.Log.Info(fmt.Sprintf("转环后的数据(%v)：", staffs))
 	if err != nil {
 		return nil, tools.NewOperationError(fmt.Errorf("转换飞书用户数据失败：%s", err.Error()))
 	}
