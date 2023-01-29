@@ -7,6 +7,7 @@ import (
 	"github.com/eryajf/go-ldap-admin/config"
 	"github.com/eryajf/go-ldap-admin/model"
 	"github.com/eryajf/go-ldap-admin/public/client/feishu"
+	"github.com/eryajf/go-ldap-admin/public/common"
 
 	"github.com/eryajf/go-ldap-admin/public/tools"
 	"github.com/eryajf/go-ldap-admin/service/ildap"
@@ -102,11 +103,14 @@ func (d FeiShuLogic) SyncFeiShuUsers(c *gin.Context, req interface{}) (data inte
 
 	// 3.获取飞书已离职用户id列表
 	userIds, err := feishu.GetLeaveUserIds()
+	common.Log.Info(fmt.Sprintf("处理离职id列表(%v)：" + userIds))
 	if err != nil {
 		return nil, tools.NewOperationError(fmt.Errorf("SyncFeiShuUsers获取飞书离职用户列表失败：%s", err.Error()))
 	}
 	// 4.遍历id，开始处理
 	for _, uid := range userIds {
+		common.Log.Info(fmt.Sprintf("处理离职id(%s)：" + uid))
+
 		if isql.User.Exist(tools.H{"source_user_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, uid)}) {
 			user := new(model.User)
 			err = isql.User.Find(tools.H{"source_union_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, uid)}, user)
